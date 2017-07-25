@@ -27,14 +27,18 @@ class RemoteLock
   end
 
   def acquire_lock(key, options = {})
+    # 1.upto(options[:retries]) do |attempt|
+    #   success = @adapter.store(key_for(key), options[:expiry])
+    #   return if success
+    #   break if attempt == options[:retries]
+    #   Kernel.sleep(2 ** (attempt + rand - 1) * options[:initial_wait])
+    # end
+    # raise RemoteLock::Error, "Couldn't acquire lock for: #{key}"
     options = DEFAULT_OPTIONS.merge(options)
-    1.upto(options[:retries]) do |attempt|
-      success = @adapter.store(key_for(key), options[:expiry])
-      return if success
-      break if attempt == options[:retries]
+    loop do
+      return if @adapter.store(key_for(key), options[:expiry])
       Kernel.sleep(2 ** (attempt + rand - 1) * options[:initial_wait])
     end
-    raise RemoteLock::Error, "Couldn't acquire lock for: #{key}"
   end
 
   def release_lock(key)
