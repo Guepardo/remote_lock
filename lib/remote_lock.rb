@@ -35,10 +35,17 @@ class RemoteLock
     # end
     # raise RemoteLock::Error, "Couldn't acquire lock for: #{key}"
     options = DEFAULT_OPTIONS.merge(options)
+    attempt = 0
     loop do
       return if @adapter.store(key_for(key), options[:expiry])
-      Kernel.sleep(2 ** (attempt + rand - 1) * options[:initial_wait])
+      Kernel.sleep(fibo attempt)
+      attempt += 1
     end
+  end
+
+  def fibo(number) 
+    if number < 2 return number 
+    return fibo(number - 1) + fibo(number - 2)  
   end
 
   def release_lock(key)
