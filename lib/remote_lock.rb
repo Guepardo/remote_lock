@@ -38,14 +38,9 @@ class RemoteLock
     attempt = 0
     loop do
       return if @adapter.store(key_for(key), options[:expiry])
-      Kernel.sleep(fibo attempt)
+      Kernel.sleep(2 ** (attempt + rand - 1) * options[:initial_wait])
       attempt += 1
     end
-  end
-
-  def fibo(number) 
-    if number < 2 return number 
-    return fibo(number - 1) + fibo(number - 2)  
   end
 
   def release_lock(key)
